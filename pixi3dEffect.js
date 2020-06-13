@@ -15,8 +15,6 @@ function initHeader(animationApp){
         background.height = width / 4 * 3;
         background.width = width;
     }
-
-
     background.anchor.set(0.5);
     background.position.set(width / 2, height / 2);
     animationApp.stage.addChild(background);
@@ -26,7 +24,7 @@ function initHeader(animationApp){
         fontFamily: 'Arial',
         fontSize: width / 10,
         fontWeight: 'bold',
-        fill: "white", // gradient
+        fill: "white",
     });
 
     const richText = new PIXI.Text('OLEG GORA', TextStyle);
@@ -36,22 +34,21 @@ function initHeader(animationApp){
     animationApp.stage.addChild(richText);
 
 
+    let humanCoontainer = new PIXI.Container();
+
     let human = new PIXI.Sprite.from(resources.human.texture);
     human.height = height / 1.5;
     human.width = human.height * 929 / 1772;
     human.anchor.set(0.5, 1);
-    human.position.set(width / 2, height);
-    human.interactive = true;
+    humanCoontainer.position.set(width / 2, height);
+    humanCoontainer.interactive = true;
 
-    animationApp.stage.addChild(human);
+    humanCoontainer.addChild(human);
+    animationApp.stage.addChild(humanCoontainer);
 
-    window.onmousemove = function (e) {
-        human.x = (width / 2 - e.clientX / 70);
-        human.y = (height + 50 - e.clientY / 70);
 
-        richText.x = (width / 2 - e.clientX / 50);
-        richText.y = (height / 2.7 - e.clientY / 50);
-    };
+
+
 
     let blurHuman = new PIXI.filters.BlurFilter();
     let blurBackground = new PIXI.filters.BlurFilter();
@@ -59,14 +56,55 @@ function initHeader(animationApp){
     blurHuman.blur = 0;
     background.addBlur = true;
     background.filters = [blurBackground];
-    human.filters = [blurHuman];
-    human.on('pointerout', () => {
+    humanCoontainer.filters = [blurHuman];
+    humanCoontainer.on('pointerout', () => {
         background.addBlur = true;
     });
-    human.on('pointerover', () => {
+    humanCoontainer.on('pointerover', () => {
         background.addBlur = false;
 
     });
+
+
+
+    const TextStyle2 = new PIXI.TextStyle({
+        fontFamily: 'Arial',
+        fontSize: human.width/6,
+        fontWeight: 'bold',
+        fill: "black",
+    });
+
+    const clickText = new PIXI.Text('click', TextStyle2);
+    clickText.y = -humanCoontainer.height*3/4.5;
+    clickText.anchor.set(0.5);
+    clickText.alpha = 0.3;
+    clickText.interactive = true;
+    clickText.buttonMode = true;
+    humanCoontainer.addChild(clickText);
+
+
+    clickText.on('click', ()=>{
+        document.getElementById("section-wrapper").style.display = "block";
+    })
+
+    window.onmousemove = function (e) {
+        humanCoontainer.x = (width / 2 - e.clientX / 70);
+        humanCoontainer.y = (height + 50 - e.clientY / 70);
+
+        richText.x = (width / 2 - e.clientX / 50);
+        richText.y = (height / 2.7 - e.clientY / 50);
+    };
+
+    let gyroscope = new Gyroscope({frequency: 60});
+        gyroscope.addEventListener('reading', e => {
+            humanCoontainer.x = (width / 2 - gyroscope.x / 70);
+            humanCoontainer.y = (height + 50 -gyroscope.y / 70);
+
+            richText.x = (width / 2 - gyroscope.x / 50);
+            richText.y = (height / 2.7 - gyroscope.y / 50);
+        });
+
+    gyroscope.start();
 
 
     animationApp.ticker.add(() => {
@@ -80,23 +118,8 @@ function initHeader(animationApp){
 
     });
 
-
-
 }
 
 
-//  depthMap = new PIXI.Sprite.from('images/pixi_animation/jellyfish.jpg');
-//  depthMap.width = window.innerWidth;
-//  depthMap.height = img.width*2/3;
-//  depthMap.anchor.set(0.5);
-//  depthMap.position.set(window.innerWidth/2, window.innerHeight/2);
-//  animationApp.stage.addChild(depthMap);
-//
-//  displacementFilter = new PIXI.filters.DisplacementFilter(depthMap);
-//  animationApp.stage.filters = [displacementFilter];
-//
-// window.onmousemove  = function (e) {
-//     displacementFilter.scale.x = (window.innerWidth/2 - e.clientX)/20;
-//     displacementFilter.scale.y = (window.innerHeight/2 - e.clientY)/20;
-// };
+
 
